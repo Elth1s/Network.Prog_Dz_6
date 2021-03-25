@@ -7,6 +7,19 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <DockPanel LastChildFill="False" Grid.Row="0">
+            <TextBlock Text="Email:" FontSize="18" VerticalAlignment="Center" Margin="10 0 0 0"/>
+            <TextBox x:Name="EmailTextBox" FontSize="18" VerticalAlignment="Center" Width="150" Margin="10 0 20 0"/>
+            <TextBlock Text="Password:" FontSize="18" VerticalAlignment="Center"/>
+            <PasswordBox x:Name="PasswordBox" FontSize="18" VerticalAlignment="Center" Width="150" Margin="10 0 20 0"/>
+            <Button Content="Connect" FontSize="18" VerticalAlignment="Center" Padding="10,0" Click="Button_Click"/>
+        </DockPanel>
+        <ListBox x:Name="MyListBox" Grid.Row="1" Margin="5">
+            
+        </ListBox>
     </Grid>
 </Window>
