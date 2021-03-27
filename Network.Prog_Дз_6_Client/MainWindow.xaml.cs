@@ -1,6 +1,7 @@
 ﻿using EAGetMail;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,9 +22,12 @@ namespace Network.Prog_Дз_6_Client
     /// </summary>
     public partial class MainWindow : Window
     {
+        ObservableCollection<MyMailMessage> mailMessages = new ObservableCollection<MyMailMessage>();
+        bool isConnected = false;
         public MainWindow()
         {
             InitializeComponent();
+            MyListBox.ItemsSource = mailMessages;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -31,60 +35,98 @@ namespace Network.Prog_Дз_6_Client
             if (string.IsNullOrEmpty(EmailTextBox.Text) || string.IsNullOrEmpty(PasswordBox.Password)) return;
 
             MailServer server = new MailServer(
-                "imap.gmail.com",
+                "",
                 EmailTextBox.Text,
                 PasswordBox.Password,
                 ServerProtocol.Imap4)
             {
                 SSLConnection = true,
-                Port = 993
             };
-
+            if (GoogleRadioButton.IsChecked == true) 
+            {
+                server.Server = "imap.gmail.com";
+                server.Port = 993;
+            }
+            else if (UkrRadioButton.IsChecked == true)
+            {
+                server.Server = "imap.ukr.net";
+                server.Port = 993;
+            }
             MailClient client = new MailClient("TryIt"); // trial version
 
             try
             {
                 client.Connect(server);
+                var messages = client.GetMailInfos();
 
-                // show all folders
-                foreach (var f in client.GetFolders())
-                {
-                    MyListBox.Items.Add(f.Name);
-                    foreach (var subF in f.SubFolders)
+                    foreach (var m in messages)
                     {
-                        MyListBox.Items.Add("\t" + subF.Name);
+                        Mail message = client.GetMail(m);
+
+                        mailMessages.Add(new MyMailMessage() { From = message.From.ToString(), Subject = message.Subject, AllText = message.TextBody, Text = new string(message.TextBody.Take(80).ToArray()).Replace("\n", "").Replace("\r", "") + "...", Date = message.ReceivedDate });
                     }
-                }
-
-                //// select Trash folder
-                //client.SelectFolder(client.Imap4Folders[1].SubFolders[2]);
-                //// get mails in selected folder
-                //var messages = client.GetMailInfos();
-
-                //foreach (var m in messages)
-                //{
-
-                //    Console.WriteLine($"Index: {m.Index}{Environment.NewLine}Size: {m.Size}\n");
-
-                //    Mail message = client.GetMail(m);
-
-                //    if (m.Index == 21)
-                //    {
-                //        // save attachment
-                //        message.Attachments[0].SaveAs(message.Attachments[0].Name, true);
-                //    }
-
-                //    Console.WriteLine($"From: {message.From}\n\n\t{message.Subject}");
-                //    Console.WriteLine($"Date: {message.SentDate}\tAttachments: {message.Attachments.Count()}");
-                //    Console.WriteLine($"Body: {new string(message.TextBody.Take(50).ToArray())}...");
-                //    Console.WriteLine("-----------------------------------------------------");
-                //}
-
+                isConnected = true;
             }
             catch (Exception ex)
             {
                MessageBox.Show(ex.Message);
             }
+        }
+
+        private void SendMessage_Click(object sender, RoutedEventArgs e)
+        {
+            if(isConnected==true)
+            {
+                string server = "";
+                if (GoogleRadioButton.IsChecked == true)
+                {
+                    server = "imap.gmail.com";
+                }
+                else if (UkrRadioButton.IsChecked == true)
+                {
+                    server = "imap.ukr.net";
+                }
+                SendMessage sendMessage = new SendMessage(server, EmailTextBox.Text, PasswordBox.Password, "");
+                sendMessage.ShowDialog();
+            }
+        }
+
+        private void Reply_Click(object sender, RoutedEventArgs e)
+        {
+            if (isConnected == true)
+            {
+                string server = "";
+                if (GoogleRadioButton.IsChecked == true)
+                {
+                    server = "imap.gmail.com";
+                }
+                else if (UkrRadioButton.IsChecked == true)
+                {
+                    server = "imap.ukr.net";
+                }
+                string to = "";
+                for (int i = 0; i < mailMessages[MyListBox.SelectedIndex].From.Length; i++)
+                {
+                    if(mailMessages[MyListBox.SelectedIndex].From[i] == '<')
+                    {
+                        for (int j = i+1; j < mailMessages[MyListBox.SelectedIndex].From.Length; j++)
+                        {
+                            if (mailMessages[MyListBox.SelectedIndex].From[j] != '>')
+                                to += mailMessages[MyListBox.SelectedIndex].From[j];
+                            else
+                                break;
+                        }
+                    }
+                }
+                SendMessage sendMessage = new SendMessage(server, EmailTextBox.Text, PasswordBox.Password, to);
+                sendMessage.ShowDialog();
+            }
+        }
+
+        private void CheckInfoButton_Click(object sender, RoutedEventArgs e)
+        {
+            MyMailMessage message = mailMessages[MyListBox.SelectedIndex];
+            MessageBox.Show($"From: {message.From}\nDate: {message.Date}\n{message.AllText}");
         }
     }
 }

@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <DockPanel LastChildFill="False" Grid.Row="0">
             <TextBlock Text="Email:" FontSize="18" VerticalAlignment="Center" Margin="10 0 0 0"/>
@@ -17,9 +18,32 @@
             <TextBlock Text="Password:" FontSize="18" VerticalAlignment="Center"/>
             <PasswordBox x:Name="PasswordBox" FontSize="18" VerticalAlignment="Center" Width="150" Margin="10 0 20 0"/>
             <Button Content="Connect" FontSize="18" VerticalAlignment="Center" Padding="10,0" Click="Button_Click"/>
+            <RadioButton x:Name="GoogleRadioButton" VerticalAlignment="Center" Margin="10 0" FontSize="16" Content="google" IsChecked="True"/>
+            <RadioButton x:Name="UkrRadioButton" VerticalAlignment="Center" FontSize="16" Content="ukr"/>
         </DockPanel>
         <ListBox x:Name="MyListBox" Grid.Row="1" Margin="5">
-            
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" FontSize="18" Text="{Binding From}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" FontSize="18" Text="{Binding Subject}"/>
+                        <TextBlock Grid.Row="1" Grid.ColumnSpan="2" FontSize="16" Text="{Binding Text}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
+        <DockPanel Grid.Row="2" LastChildFill="False">
+            <Button x:Name="SendMessageButton" Content="Send Message" FontSize="18" VerticalAlignment="Center" Padding="10 0" Margin="10 0" Click="SendMessage_Click"/>
+            <Button x:Name="Reply" Content="Reply" FontSize="18" VerticalAlignment="Center" Padding="10 0" Click="Reply_Click"/>
+            <Button x:Name="CheckInfoButton" FontSize="18" VerticalAlignment="Center" Margin="10 0" Padding="10 0" Content="Check Message" Click="CheckInfoButton_Click"/>
+        </DockPanel>
     </Grid>
 </Window>
