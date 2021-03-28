@@ -80,11 +80,11 @@ namespace Network.Prog_Дз_6_Client
                 string server = "";
                 if (GoogleRadioButton.IsChecked == true)
                 {
-                    server = "imap.gmail.com";
+                    server = "smtp.gmail.com";
                 }
                 else if (UkrRadioButton.IsChecked == true)
                 {
-                    server = "imap.ukr.net";
+                    server = "smtp.ukr.net";
                 }
                 SendMessage sendMessage = new SendMessage(server, EmailTextBox.Text, PasswordBox.Password, "");
                 sendMessage.ShowDialog();
